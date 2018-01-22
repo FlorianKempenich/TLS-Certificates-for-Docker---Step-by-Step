@@ -282,8 +282,11 @@ EOF
 function generate_step_3-4_info_scripts {
   echo 'echo "Read the title of the file!"' > ./step-3_SEE_IN_CLIENT_SERVER_FOLDERS_FOR_STEP_3.sh
   echo 'echo "Read the title of the file!"' > ./step-4_SEE_IN_CLIENT_SERVER_FOLDERS_FOR_STEP_4.sh
+  chmod +x ./step-3_SEE_IN_CLIENT_SERVER_FOLDERS_FOR_STEP_3.sh 
+  chmod +x ./step-4_SEE_IN_CLIENT_SERVER_FOLDERS_FOR_STEP_4.sh 
 }
 function optional_generate_ansible_project {
+  DOMAIN=$1
   mkdir ./ansible
   cat > ./ansible/ansible.cfg <<'EOF'
 [defaults]
@@ -307,10 +310,55 @@ EOF
   cat > ./ansible/requirements.yml <<EOF
 - src: FlorianKempenich.setup-secure-remote-docker-daemon
 EOF
+
+  cat > ./ansible/inventory <<EOF
+secure-remote-docker ansible_host=$DOMAIN ansible_user=root
+EOF
 }
 
-function echo_README {
-	echo "done (put readme here from curl)"
+function print_instructions {
+  DOMAIN=$1
+  cat <<EndOfInstructions
+
+The steps have been generated!
+Now simply follow the instructions, step-by-step:
+
+    # Generate the Root CA Key & Certificate
+    ./step-1_Generate_RootCA_PrivateKey.sh
+    ./step-2_Generate_RootCA_Certificate.sh
+    
+    # Generate the Client Key & Certificate Signing Request (CSR)
+    cd ./client
+    ./step-3-A_Generate_Client_PrivateKey.sh
+    ./step-3-B_Generate_Server_PrivateKey.sh
+    cd ..
+    
+    # Generate the Server Key & Certificate Signing Request (CSR)
+    cd ./server
+    ./step-4-A_Generate_Client_CSR.sh
+    ./step-4-B_Generate_Server_CSR.sh
+    cd ..
+    
+    # Sign the Client & Server Certificates with the Root CA
+    ./step-5-A_Sign_Client_Certificate.sh
+    ./step-5-B_Sign_Server_Certificate.sh
+    
+    # Copy the certificate in a 'docker_format' directory
+    #
+    # This follow the naming convention expected by docker when
+    # setting the 'DOCKER_CERT_PATH' environment variable
+    ./step-6_Copy_clients_certificates_using_docker_naming_format.sh
+
+
+OPTIONALLY: 
+Set up a working remote docker socket using the generated certificates in one click.
+See instructions online.
+
+###############################################################################
+## Enjoy your new secure docker socket at: '$DOMAIN'
+###############################################################################
+
+EndOfInstructions
 }
 ## END - Functions ############################################
 
@@ -320,7 +368,7 @@ function echo_README {
 ## Main Flow ##
 ###############
 if [ -z "$1" ]; then
-  echo 'Please provide a domain name: `docker_tls_certificates_generator.sh DOMAIN_NAME`'
+  echo 'Please provide a domain name: `generate_steps.sh DOMAIN_NAME`'
   exit 1
 fi
 DOMAIN=$1
@@ -346,8 +394,7 @@ generate_activation_deactivation_scripts $DOMAIN
 generate_step_3-4_info_scripts
 generate_gitignore
 # Generate optional 'ansible' project
-optional_generate_ansible_project
+optional_generate_ansible_project $DOMAIN
 
-# Print instructions
-echo_README $DOMAIN
-
+#Print instructions
+print_instructions $DOMAIN

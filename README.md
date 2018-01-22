@@ -125,6 +125,7 @@ It allows to setup a **working remote `docker` socket** using the generated **ce
 > 1. **Enter** the directory: `cd ./ansible`
 > 2. **Edit** the `ansible_user` field in the `inventory` file.
 >    * To indicate the `username` you use to connect to the remote machine.
+>    * Default: `root`
 > 3. **Run** the playbook: `ansible-playbook playbook.yaml`
 >    * Or `ansible-playbook playbook.yaml -K` if using a **non-root** user
 
