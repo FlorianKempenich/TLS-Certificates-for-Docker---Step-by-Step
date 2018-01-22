@@ -10,7 +10,8 @@
 ### One line installation
 In a **emtpy folder** run:
 ```
-sh -c $(curl -s https://asdfasdfasdfasdfasdfasdfsfadsf) YOUR_DOMAIN_NAME
+bash <(curl -s https://raw.githubusercontent.com/FlorianKempenich/TLS-Certificates-for-Docker---Step-by-Step/master/generate_steps.sh) \
+  YOUR_DOMAIN_NAME
 ```
 
 This will create a set of scripts in the current directory each representing 
