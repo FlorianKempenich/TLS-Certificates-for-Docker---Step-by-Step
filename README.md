@@ -8,7 +8,7 @@
 ## Usage
 
 ### One line installation
-In a **emtpy folder** run:
+In an **emtpy folder** run:
 ```
 bash <(curl -s https://raw.githubusercontent.com/FlorianKempenich/TLS-Certificates-for-Docker---Step-by-Step/master/generate_steps.sh) \
   YOUR_DOMAIN_NAME
