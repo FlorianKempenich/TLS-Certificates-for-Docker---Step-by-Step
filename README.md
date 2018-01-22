@@ -136,3 +136,11 @@ After you ensure that `YOUR_DOMAIN_NAME` is actually pointing to that machine,
 you can simply activate it by running: `eval $(./activate.sh)`
 
 For more info, see: [Activation / Deactivation](http://)
+
+--- 
+
+## Credits
+
+**Antonio Pires:**  
+    For helping me figure out how TLS Certificates work.  
+    As well as how they are used in the context of Docker.
