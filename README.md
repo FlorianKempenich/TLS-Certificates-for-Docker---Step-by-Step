@@ -127,8 +127,9 @@ It allows to setup a **working remote `docker` socket** using the generated **ce
 > 2. **Edit** the `ansible_user` field in the `inventory` file.
 >    * To indicate the `username` you use to connect to the remote machine.
 >    * Default: `root`
-> 3. **Run** the playbook: `ansible-playbook playbook.yaml`
->    * Or `ansible-playbook playbook.yaml -K` if using a **non-root** user
+> 3. **Install** the role dependency: `ansible-galaxy install -r requirements.yml`
+> 4. **Run** the playbook: `ansible-playbook playbook.yml`
+>    * Or `ansible-playbook playbook.yml -K` if using a **non-root** user
 
 The machine accessible at `YOUR_DOMAIN_NAME` is now a **fully configured, remotely accessible, secured with TLS** `docker` machine.
 

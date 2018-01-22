@@ -210,9 +210,9 @@ echo "           -days 360 \\"
 echo "           -CAcreateserial \\"
 echo "           -CA rootca-certificate.pem \\"
 echo "           -CAkey rootca-privatekey.pem \\"
-echo "           -in client/csr/client-CSR.csr \\"
-echo "           -extfile client/csr/client-extfile.cnf \\"
-echo "           -out client/client-certificate.pem"
+echo "           -in server/csr/server-CSR.csr \\"
+echo "           -extfile server/csr/server-extfile.cnf \\"
+echo "           -out server/server-certificate.pem"
 echo
 openssl x509 \
   -req \
@@ -220,9 +220,9 @@ openssl x509 \
   -CAcreateserial \
   -CA rootca-certificate.pem \
   -CAkey rootca-privatekey.pem \
-  -in client/csr/client-CSR.csr \
-  -extfile client/csr/client-extfile.cnf \
-  -out client/client-certificate.pem
+  -in server/csr/server-CSR.csr \
+  -extfile server/csr/server-extfile.cnf \
+  -out server/server-certificate.pem
 
 echo
 echo DONE
