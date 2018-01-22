@@ -279,6 +279,10 @@ docker_format
 ansible/roles_deps
 EOF
 }
+function generate_step_3-4_info_scripts {
+  echo 'echo "Read the title of the file!"' > ./step-3_SEE_IN_CLIENT_SERVER_FOLDERS_FOR_STEP_3.sh
+  echo 'echo "Read the title of the file!"' > ./step-4_SEE_IN_CLIENT_SERVER_FOLDERS_FOR_STEP_4.sh
+}
 function optional_generate_ansible_project {
   mkdir ./ansible
   cat > ./ansible/ansible.cfg <<'EOF'
@@ -339,6 +343,7 @@ generate_step-5-B_Sign_Server_Certificate
 generate_step-6_Copy_clients_certificates_using_docker_naming_format
 # Generate exta scripts
 generate_activation_deactivation_scripts $DOMAIN
+generate_step_3-4_info_scripts
 generate_gitignore
 # Generate optional 'ansible' project
 optional_generate_ansible_project

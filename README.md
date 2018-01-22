@@ -1,109 +1,136 @@
-	DOMAIN=$1
-	echo "All steps have been generated for the domain: '$DOMAIN'"
-	echo
-	echo "To generate the certificates:"
-	echo "Simply run each step by 'cd-ing' in their respective folders"
-	echo
-	echo "    # Generate the Root CA Key & Certificate"
-	echo "    ./step-1_Generate_RootCA_PrivateKey.sh"
-	echo "    ./step-2_Generate_RootCA_Certificate.sh"
-	echo
-	echo "    # Generate the Client Key & Certificate Signing Request (CSR)"
-	echo "    cd ./client"
-	echo "    ./step-3-A_Generate_Client_PrivateKey.sh"
-	echo "    ./step-3-B_Generate_Server_PrivateKey.sh"
-	echo "    cd .."
-	echo
-	echo "    # Generate the Server Key & Certificate Signing Request (CSR)"
-	echo "    cd ./server"
-	echo "    ./step-4-A_Generate_Client_CSR.sh"
-	echo "    ./step-4-B_Generate_Server_CSR.sh"
-	echo "    cd .."
-	echo
-	echo "    # Sign the Client & Server Certificates with the Root CA"
-	echo "    ./step-5-A_Sign_Client_Certificate.sh"
-	echo "    ./step-5-B_Sign_Server_Certificate.sh"
-  echo
-  echo "    # Copy the certificate in a 'docker_format' directory"
-  echo "    #"
-  echo "    # This follow the naming convention expected by docker when"
-  echo "    # setting the 'DOCKER_CERT_PATH' environment variable"
-  echo "    ./step-6_Copy_clients_certificates_using_docker_naming_format.sh"
-	echo
-	echo "And you're done :)"
-	echo
-	echo "To make understanding the process easier:"
-	echo "When running each step, the command being executed will be displayed"
-	echo 'Feel free to inspect the content of each script before running them ;)'
-	echo
-	echo 
-	## Optional: 
-	## One click certificate installation on remote docker daemon, with ansible.
-	#
-	# In the 'ansible' directory you can find a preconfigured 'ansible' 
-	# project that allow you to setup in one click the docker daemon on a remote 
-	# machine using these certificates.
-	#
-	# To use simply edit the 'ansible_user' field in the 'inventory' file to 
-	# indicate your user account on the remote machine ('root' by default).
-	#
-	# Ensure:
-	#  - You have SSH access with that username on the machine 
-	#  - Python 2 is installed on the remote machine
-	# 
-	# Then run:
-	#     cd ./ansible
-	#     ansible-galaxy install -r requirements.yaml
-	#     ansible-playbook playbook.yaml    # (if using 'root')
-	#     OR
-	#     ansible-playbook playbook.yaml -K # (if using non-'root')
-	#
-	# If not installed, docker will be installed on the remote machine,
-	# and it will be configured to expose the port '2376' secured with the 
-	# newly created certificates
-	##
+# TLS Certificates for Docker - Step-by-Step
 
-	echo
-	echo "Have fun with your new secure docker socket at: '$DOMAIN'"
-	echo
+> Confused how to create your own self-signed certificates to secure a remote docker socket?
+> 
+> This project generates a set of instructions, as executable scripts, to guide you in
+> that process.
+
+## Usage
+
+### One line installation
+In a **emtpy folder** run:
+```
+sh -c $(curl -s https://asdfasdfasdfasdfasdfasdfsfadsf) YOUR_DOMAIN_NAME
+```
+
+This will create a set of scripts in the current directory each representing 
+a step to generate the following set of certificates / private keys:
+
+```
+* RootCA - Private Key 
+* RootCA - Self-signed Certificate 
+* Client - Private Key 
+* Client - Certificate signed by Root CA
+  * Used for client authentication with the `docker daemon`
+  * The `docker daemon` is set to trust any certificate issued by the Root CA
+* Server - Private Key 
+* Server - Certificate signed by Root CA
+  * Certifies the domain name set by: `YOUR_DOMAIN_NAME`
+```
 
 
+### Generate the certficates
 
+After running the installation command, simply **execute each step** to generate the all the certificates.
 
+    # Generate the Root CA Key & Certificate
+    ./step-1_Generate_RootCA_PrivateKey.sh
+    ./step-2_Generate_RootCA_Certificate.sh
 
+    # Generate the Client Key & Certificate Signing Request (CSR)
+    cd ./client
+    ./step-3-A_Generate_Client_PrivateKey.sh
+    ./step-3-B_Generate_Server_PrivateKey.sh
+    cd ..
 
+    # Generate the Server Key & Certificate Signing Request (CSR)
+    cd ./server
+    ./step-4-A_Generate_Client_CSR.sh
+    ./step-4-B_Generate_Server_CSR.sh
+    cd ..
 
+    # Sign the Client & Server Certificates with the Root CA
+    ./step-5-A_Sign_Client_Certificate.sh
+    ./step-5-B_Sign_Server_Certificate.sh
 
+    # Copy the certificate in a 'docker_format' directory
+    #
+    # This follow the naming convention expected by docker when
+    # setting the 'DOCKER_CERT_PATH' environment variable
+    ./step-6_Copy_clients_certificates_using_docker_naming_format.sh
 
+**And you're done :)**
 
-# TLS Certificates for `the-sandbox.access.ly`
+To make understanding the process easier:  
+When running each step, **the command being executed will be displayed.**
 
-Contain the certificates, along with the root ca, that allow to create a secure TLS connection via the domain: `the-sandbox.access.ly`
+Feel free to inspect the content of each script before running them ;)
 
-## Setup on remote machine
+## Activation / Deactivation scripts
 
-Use the `docker-sandbox` role from my private ansible configuration project.
+Once your `docker` machine is setup to use the certificates, to run `docker` commands
+directly on that machine a pair of activation / deactivation scripts is provided.
 
-## Activation / Deactivation
-
-**Activation:**
+### Activate the remote machine
 ```
 eval $(./activate.sh)
-# (or zsh function, see '~/.zshrc'
 ```
+Any `docker` command ran after the activating the machine will be executed **on the remote machine**
 
-**Deactivation:**
+### Deactivate the remote machine
 ```
 eval $(./deactivate.sh)
-# (or zsh function, see '~/.zshrc'
 ```
+`docker` commands are now running locally again.
 
-## Note on `Common name`
+> ### More details on Activation / Deactivation
+> #### Before activation:
+> ```
+> docker run \
+>   --rm \
+>   --name=hello-world\
+>   -eWORLD=Mundo \
+>   -p"80:80" \
+>   -d floriankempenich/hello-world
+> ```
+> Would run a **hello-world** web server on the port `80` of your local machine.
+> 
+> #### After activation:
+> After runnning `eval $(./activate.sh)`, the **same command**:
+> ```
+> docker run \
+>   --rm \
+>   --name=hello-world\
+>   -eWORLD=Mundo \
+>   -p"80:80" \
+>   -d floriankempenich/hello-world
+> ```
+> Will now run a **hello-world** web server on the port `80` of the **remote machine** accessible through `YOUR_DOMAIN_NAME`
+ 
+-------------
 
-`Common name` represent the domain name through wich the server is accessed.
+## Optional: One click `docker` setup
+On top of the step-by-step instructions, a **one click `docker` setup** ansible 
+project has been created.
 
-The only certificate that **really** need to contain the 'domain name' in that `Common name` field  is the one from the server.
+It allows to setup a **working remote `docker` socket** using the generated **certificates** in **one click**.
 
-It is the only that is remotelly accessed through the 'domain name'.
-The other 'Common name' can remain empty
+> **The only requirements are:**
+> * `ansible` is installed on the **local** machine
+> * You have SSH access with that `username` on the **remote** machine 
+> * Python 2 is installed on the **remote** machine
 
+### Usage
+
+> 1. **Enter** the directory: `cd ./ansible`
+> 2. **Edit** the `ansible_user` field in the `inventory` file.
+>    * To indicate the `username` you use to connect to the remote machine.
+> 3. **Run** the playbook: `ansible-playbook playbook.yaml`
+>    * Or `ansible-playbook playbook.yaml -K` if using a **non-root** user
+
+The machine accessible at `YOUR_DOMAIN_NAME` is now a **fully configured, remotely accessible, secured with TLS** `docker` machine.
+
+After you ensure that `YOUR_DOMAIN_NAME` is actually pointing to that machine, 
+you can simply activate it by running: `eval $(./activate.sh)`
+
+For more info, see: [Activation / Deactivation](http://)
